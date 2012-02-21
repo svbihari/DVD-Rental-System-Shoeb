@@ -12,12 +12,13 @@ public class Session {
 		System.out.println("Welcome to Admin Mode");
 		boolean argument = true;
 			
-		/* keep looping to get inputs from user */
+		/* keep looping to get inputs from user */ 
 		while (argument){
 			System.out.println("Enter transaction you wish to proceed:");
 			Scanner in = new Scanner (System.in);
 			String input = in.next();
 			in.nextLine();
+			// condition for rent function.
 			if (input.equalsIgnoreCase("rent")){
 				Functions.rent();
 				argument = false;
