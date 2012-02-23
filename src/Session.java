@@ -67,24 +67,7 @@ public class Session {
 				argument = false;
 				Functions.logout();
 			}
-			else if (input.equalsIgnoreCase("cancel")){
-				
-				
-				System.out.println("Are you sure you want to cancel?");
-				String response =  in.nextLine();
-				
-					if (response.equalsIgnoreCase("yes")){
-						argument = false;
-						Functions.cancel();
-					}
-					else if(response.equalsIgnoreCase("no")){
-						
-					}
-					
-					else{
-						System.out.println("Invalid arguement please enter yes/no");
-					}
-			}
+			
 			
 			else {
 				
@@ -95,7 +78,7 @@ public class Session {
 		
 	}
 
-	public static void standard() {
+	public static void standard () {
 		// TODO Auto-generated method stub
 		
 		System.out.println("Welcome to Admin Standard");
@@ -132,19 +115,7 @@ public class Session {
 				argument = false;
 				Functions.logout();
 			}
-			else if (input.equalsIgnoreCase("cancel")){
-				
-				
-				System.out.println("Are you sure you want to cancel?");
-				String response =  in.next();
-					if (response.equalsIgnoreCase("yes")){
-						argument = false;
-						Functions.cancel();
-					}
-					else{
-						return;
-					}	
-			}
+		
 			
 			else {
 				
