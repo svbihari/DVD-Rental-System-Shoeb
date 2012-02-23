@@ -1,15 +1,12 @@
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.InputMismatchException;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 
 /*
  * Functions.java
@@ -22,7 +19,7 @@ import java.text.NumberFormat;
 /*
  * The Function.java class is responsible for carrying out
  * the transaction methods for the DVD Rental System.
- * The for handle all the features of the DVD Rental System such as
+ * This contains methods for handling all the features of the DVD Rental System such as
  * login, logout, create, rent, buy, sell, add, and remove.  
  * In addition we have also included a method to generate a output log 
  * file of the DVD transaction summary.  It also contains some Boolean attributes 
@@ -455,8 +452,8 @@ class Functions {
 		// Writing transaction to the file
 		try {
 
-			log(07, title, mapDVDquantity.get(title), mapDVDstatus.get(title),
-					price);
+			log(07, title, mapDVDquantity.get(title),
+					temp_mapDVDstatus.get(title), price);
 
 		} catch (IOException e) {
 
@@ -468,7 +465,10 @@ class Functions {
 	}
 
 	/*
-	 * 
+	 * buy allows user to buy copies of a DVD, This method takes user input DVD
+	 * title and number of copies in addition this method test for condition for
+	 * privilege in purchasing number of copies. Saves the transaction on to DVD
+	 * transaction summary file.
 	 */
 	public static void buy() {
 		// TODO Auto-generated method stub
@@ -490,15 +490,208 @@ class Functions {
 		}
 
 		else {
+
+			// Takes user input DVD title
+			// variable initialised
 			String title;
 			System.out.println("Enter DVD title:");
 			title = in.nextLine();
 			title = title.toLowerCase();
 
+			// Constrain Check: DVD title must be a current DVD title with
+			// status "S"
 			if (!mapDVDstatus.containsKey(title)
 					|| !mapDVDstatus.get(title).equalsIgnoreCase("s")) {
 				System.out.println("Error: DVD with this name does not exist");
 			}
+
+			// Take user input number of copies
+			// Initialise variable
+			int quantity = 0;
+
+			// take integer value
+			try {
+				System.out.println("Enter number of copies:");
+				quantity = in.nextInt();
+
+			} // end try
+			catch (InputMismatchException inputMismatchException) {
+				System.err.printf("\nException: %s\n", inputMismatchException);
+				in.nextLine(); // discard input so user can try again
+				System.out
+						.println("You must enter integers. Tansaction Terminated\n");
+				return;
+			}
+
+			// Constrain Check: all available number of DVD copies can be
+			// processed in admin mode
+			if (admin) {
+
+				if (quantity <= 0 || quantity > mapDVDquantity.get(title)) {
+					System.out
+							.println("Error: Invalid number of copies. Transaction Terminated");
+					return;
+				}
+			}
+			// Constrain Check: at most 5 copies can be purchased in one buy
+			// transaction
+			else if (standard) {
+
+				if (quantity <= 0 || quantity > 5
+						|| quantity > mapDVDquantity.get(title)) {
+					System.out
+							.println("Error: Invalid number of copies. Transaction Terminated");
+					return;
+				}
+			}
+
+			// display the cost per unit and the total cost to the user
+			System.out.println("Cost per DVD is " + mapDVDprice.get(title)
+					+ " and total cost is "
+					+ (mapDVDprice.get(title) * quantity)
+					+ " do you wish to proceed?");
+
+			String confirmation = in.nextLine();
+
+			// ask for confirmation in the form of yes or no.
+			if (confirmation.equalsIgnoreCase("yes")) {
+				int q = (mapDVDquantity.get(title) - quantity);
+				mapDVDquantity.put(title, q);
+				System.out.println("transaction successful");
+			}
+
+			else if (confirmation.equalsIgnoreCase("no")) {
+				System.out.println("transaction unsuccessful");
+				return;
+			}
+
+			// Write to transaction summary file
+			try {
+
+				log(06, title, quantity, mapDVDstatus.get(title),
+						(mapDVDprice.get(title) * quantity));
+
+			} catch (IOException e) {
+
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// Clear Scanner
+			in.nextLine();
+		}
+	}
+
+	/*
+	 * Sell is privileged transaction requires admin session, this method Takes
+	 * user input DVD title and quantity. Check for input validity and add
+	 * number of copies to existing DVD title
+	 */
+
+	public static void add() {
+
+		// Takes user input DVD title
+		// variable initialised
+		String title;
+		System.out.println("Enter DVD title:");
+		title = in.nextLine();
+		title = title.toLowerCase();
+
+		// Constrain Check: DVD name must be the name of a current DVD available
+		// for rent
+		if (!mapDVDstatus.containsKey(title)
+				|| (!mapDVDstatus.get(title).equalsIgnoreCase("s"))) {
+			System.out
+					.println("Error: DVD with this name does not exist. Transaction Terminated");
+			return;
+		}
+
+		// Take number of copies;
+		// initialise variable
+		int quantity = 0;
+		try // read two numbers and calculate quotient
+		{
+			System.out.println("Enter number of copies:");
+			quantity = in.nextInt();
+
+		} // end try
+		catch (InputMismatchException inputMismatchException) {
+			System.err.printf("\nException: %s\n", inputMismatchException);
+			in.nextLine(); // discard input so user can try again
+			System.out
+					.println("You must enter integers. Tansaction Terminated\n");
+			return;
+		}
+
+		// Constrain Check: added and initial quantity should not exceed 999.
+		if (quantity <= 0 || (quantity + (mapDVDquantity.get(title))) > 999) {
+			System.out.println("Error: Invalid number of copies");
+			return;
+		}
+
+		int x = (quantity + (mapDVDquantity.get(title)));
+
+		temp_mapDVDquantity.put(title, x);
+
+		// write transaction to the DVD transaction summary file
+		try {
+
+			log(04, title, x, "R", 000.00);
+
+		} catch (IOException e) {
+
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// Clear Scanner
+		in.nextLine();
+	}
+
+	/*
+	 * Return transaction can be performed in any session. return a previously
+	 * rented copy of a DVD. Method take user input DVD title and quantity,
+	 * Checks for DVD title exist in system and number of quantity should be
+	 * less then 3. Saves transaction information to the DVD transaction summary
+	 * file.
+	 */
+
+	public static void reTurn() {
+		// TODO Auto-generated method stub
+
+		// Checks for DVD availability
+		if (mapDVDstatus.isEmpty()) {
+			System.out.println("No DVD requested for return");
+
+			// write to DVD transaction summary file
+			try {
+
+				log(02, "-", 0, "-", 000.00);
+
+			} catch (IOException e) {
+
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		else {
+			// Takes user input DVD title
+			// variable initialised
+			String title;
+
+			System.out.println("Enter DVD title:");
+			title = in.nextLine();
+			title = title.toLowerCase();
+
+			// Constrain check: If DVD is not in least prompt message
+			if (!mapDVDstatus.containsKey(title)) {
+				System.out
+						.println("Error: DVD with this name does not exist. Transaction Terminated");
+				return;
+			}
+
+			// Take user input number of copies
+			// Initialise variable
 
 			int quantity = 0;
 
@@ -515,168 +708,21 @@ class Functions {
 				return;
 			}
 
-			if (admin) {
-
-				if (quantity <= 0 || quantity > mapDVDquantity.get(title)) {
-					System.out.println("Error: Invalid number of copies");
-				}
+			// Constrain check: at most 3 copies can be returned in one return
+			// transaction
+			if (quantity <= 0 || quantity > 3) {
+				System.out
+						.println("Error: Invalid number of copies. Transaction Terminated");
+				return;
 			}
 
-			else if (standard) {
-
-				if (quantity <= 0 || quantity > 5
-						|| quantity > mapDVDquantity.get(title)) {
-					System.out.println("Error: Invalid number of copies");
-				}
-			}
-
-			System.out.println("Cost per DVD is " + mapDVDprice.get(title)
-					+ " and total cost is "
-					+ (mapDVDprice.get(title) * quantity)
-					+ " do you wish to proceed?");
-
-			String confirmation = in.nextLine();
-
-			if (confirmation.equalsIgnoreCase("yes")) {
-				int q = (mapDVDquantity.get(title) - quantity);
-				mapDVDquantity.put(title, q);
-				System.out.println("transaction successful");
-			}
-
-			else if (confirmation.equalsIgnoreCase("no")) {
-
-			}
-			try {
-
-				log(06, title, quantity, mapDVDstatus.get(title),
-						(mapDVDprice.get(title) * quantity));
-
-			} catch (IOException e) {
-
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			in.nextLine();
-		}
-	}
-
-	public static void add() {
-
-		String title;
-
-		System.out.println("Enter DVD title:");
-		title = in.nextLine();
-		title = title.toLowerCase();
-
-		if (title.length() > 25 || title.length() <= 0) {
-			System.out.println("Invalid Title");
-		}
-
-		if (!mapDVDstatus.containsKey(title)) {
-			System.out.println("Error: DVD with this name does not exist");
-		}
-
-		int quantity = 0;
-
-		try // read two numbers and calculate quotient
-		{
-			System.out.println("Enter number of copies:");
-			quantity = in.nextInt();
-
-		} // end try
-		catch (InputMismatchException inputMismatchException) {
-			System.err.printf("\nException: %s\n", inputMismatchException);
-			in.nextLine(); // discard input so user can try again
-			System.out
-					.println("You must enter integers. Tansaction Terminated\n");
-			return;
-		}
-		if (quantity <= 0 || (quantity + (mapDVDquantity.get(title))) > 999) {
-			System.out.println("Error: Invalid number of copies");
-			return;
-		}
-
-		int x = (quantity + (mapDVDquantity.get(title)));
-
-		mapDVDquantity.put(title, x);
-
-		try {
-
-			log(04, title, x, "R", 000.00);
-
-		} catch (IOException e) {
-
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		in.nextLine();
-	}
-
-	public static void reTurn() {
-		// TODO Auto-generated method stub
-		/*
-		 * return - return a previously rented copy of a DVD • should ask for
-		 * the DVD title and number of copies • should add the number of copies
-		 * to the number of available copies of the DVD • should save this
-		 * information for the DVD transaction file • Constraints: o DVD title
-		 * must be a current DVD title o at most 3 copies can be returned in one
-		 * return transaction
-		 */
-
-		if (mapDVDstatus.isEmpty()) {
-			System.out.println("No DVD requested for return");
-
-			try {
-
-				log(02, "-", 0, "-", 000.00);
-
-			} catch (IOException e) {
-
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		else {
-			String title;
-			do {
-				System.out.println("Enter DVD title:");
-				title = in.nextLine();
-				title = title.toLowerCase();
-
-				if (!mapDVDstatus.containsKey(title)) {
-					System.out
-							.println("Error: DVD with this name does not exist");
-				}
-
-			} while (!mapDVDstatus.containsKey(title));
-
-			int quantity = 0;
-			do {
-				try {
-					System.out.println("Enter number of copies:");
-					quantity = in.nextInt();
-
-				} // end try
-				catch (InputMismatchException inputMismatchException) {
-					System.err.printf("\nException: %s\n",
-							inputMismatchException);
-					in.nextLine(); // discard input so user can try again
-					System.out
-							.println("You must enter integers. Please try again.\n");
-				}
-
-				if (quantity <= 0 || quantity > 3) {
-					System.out.println("Error: Invalid number of copies");
-				}
-
-			} while (quantity <= 0 || quantity > 3);
-
+			// update list
 			mapDVDquantity.put(title, (mapDVDquantity.get(title) + quantity));
 			System.out.println("transaction successful");
 
+			// write to the DVD transaction summary file
 			try {
-
+				// call log method to write
 				log(02, title, quantity, mapDVDstatus.get(title), 000.00);
 
 			} catch (IOException e) {
@@ -684,22 +730,29 @@ class Functions {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			// Clear Scanner
 			in.nextLine();
 		}
 
 	}
 
+	/*
+	 * log method is to format transaction log file. method formats DVD title ,
+	 * transaction code, number of copies, status and price and it out writes to
+	 * DVD transaction file created during front end session start.
+	 */
+
 	public static void log(int i, String title, int quantity, String string,
 			double d) throws IOException {
 		// TODO Auto-generated method stub
-
+		// formating
 		String dvd_title = String.format("%-25s", title);
 		String transaction_code = String.format("%02d", i);
 		String number_of_copies = String.format("%03d", quantity);
 		String status = String.format("%-1s", string).toUpperCase();
 		DecimalFormat price = new DecimalFormat("000.00");
 		String dvd_price = price.format(d);
-
+		// Outputting
 		out.write('\n' + transaction_code + " " + dvd_title + " "
 				+ number_of_copies + " " + status + " " + dvd_price);
 		out.newLine();
