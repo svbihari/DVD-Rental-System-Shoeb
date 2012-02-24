@@ -1,6 +1,10 @@
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -26,6 +30,7 @@ import java.text.DecimalFormat;
  * for the purpose of verifying the login session type.  
  * 
  * */
+
 class Functions {
 
 	/*
@@ -50,7 +55,7 @@ class Functions {
 	private static BufferedWriter out;
 
 	public Functions() {
-		// TODO Auto-generated constructor stub
+		
 	}
 
 	/*
@@ -128,7 +133,7 @@ class Functions {
 
 		} catch (IOException e) {
 
-			// TODO Auto-generated catch block
+		
 			e.printStackTrace();
 		}
 
@@ -146,13 +151,14 @@ class Functions {
 	public static void login() {
 		// TODO Auto-generated method stub
 
-		// takes current date adn time for DVD transaction summary file name
+		// takes current date and time for DVD transaction summary file name
 		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
 		Calendar cal = Calendar.getInstance();
 		String filename = dateFormat.format(cal.getTime());
 		FileWriter newfile = null;
 		try {
-			newfile = new FileWriter(filename + ".txt");
+			newfile = new FileWriter("DVD_Transaction_Summary_" + filename
+					+ ".txt");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -178,6 +184,7 @@ class Functions {
 				// Sets admin to true
 				admin = true;
 				// calls admin method from Session class
+				System.out.println("Welcome to Admin Mode");
 				Session.admin();
 
 				// to standard mode
@@ -186,6 +193,7 @@ class Functions {
 				argument = false;
 				// Sets admin to true
 				standard = true;
+				System.out.println("Welcome to Standard Mode");
 				// call standard method from Session class
 				Session.standard();
 
@@ -218,6 +226,13 @@ class Functions {
 	 */
 	public static void logout() {
 
+		try {
+			log(00," ",000," ", 000.00);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		// TODO Auto-generated method stub
 		// closing output file.
 		try {
@@ -243,7 +258,7 @@ class Functions {
 		// Setting admin and standard to be false
 		admin = false;
 		standard = false;
-
+		
 		// Confirmation message.
 		System.out.println("logging out");
 
@@ -259,7 +274,7 @@ class Functions {
 
 			try {
 
-				log(01, "-", 0, "-", 000.00);
+				log(01, " ", 0, " ", 000.00);
 
 			} catch (IOException e) {
 
@@ -283,7 +298,7 @@ class Functions {
 			if (!mapDVDstatus.containsKey(title)
 					|| !mapDVDstatus.get(title).equalsIgnoreCase("r")) {
 				System.out
-						.println("Error: DVD with this name does not exist. Transaction Terminated");
+						.println("Error: DVD with this name does not exist or its not for rent. Transaction Terminated");
 				return;
 			}
 
@@ -309,6 +324,7 @@ class Functions {
 					|| quantity > mapDVDquantity.get(title)) {
 				System.out
 						.println("Error: Invalid number of copies. Transaction Terminate");
+				in.nextLine();
 				return;
 			}
 
@@ -349,7 +365,7 @@ class Functions {
 
 			try {
 				// write to DVD transaction summary file
-				log(05, "-", 0, "-", 000.00);
+				log(05, " ", 0, " ", 000.00);
 
 			} catch (IOException e) {
 
@@ -447,12 +463,17 @@ class Functions {
 		// Update status
 		temp_mapDVDstatus.put(title, "s");
 		temp_mapDVDprice.put(title, price);
+		temp_mapDVDquantity.put(title, mapDVDquantity.get(title));
+		
+		mapDVDquantity.remove(title);
+		mapDVDstatus.remove(title);
+		mapDVDprice.remove(title);
 
 		System.out.println("Transaction successful");
 		// Writing transaction to the file
 		try {
 
-			log(07, title, mapDVDquantity.get(title),
+			log(07, title, temp_mapDVDquantity.get(title),
 					temp_mapDVDstatus.get(title), price);
 
 		} catch (IOException e) {
@@ -503,6 +524,7 @@ class Functions {
 			if (!mapDVDstatus.containsKey(title)
 					|| !mapDVDstatus.get(title).equalsIgnoreCase("s")) {
 				System.out.println("Error: DVD with this name does not exist");
+				return;
 			}
 
 			// Take user input number of copies
@@ -557,11 +579,11 @@ class Functions {
 			if (confirmation.equalsIgnoreCase("yes")) {
 				int q = (mapDVDquantity.get(title) - quantity);
 				mapDVDquantity.put(title, q);
-				System.out.println("transaction successful");
+				System.out.println("Transaction successful");
 			}
 
 			else if (confirmation.equalsIgnoreCase("no")) {
-				System.out.println("transaction unsuccessful");
+				System.out.println("Transaction unsuccessful");
 				return;
 			}
 
@@ -569,7 +591,7 @@ class Functions {
 			try {
 
 				log(06, title, quantity, mapDVDstatus.get(title),
-						(mapDVDprice.get(title) * quantity));
+						mapDVDprice.get(title));
 
 			} catch (IOException e) {
 
@@ -600,9 +622,9 @@ class Functions {
 		// Constrain Check: DVD name must be the name of a current DVD available
 		// for rent
 		if (!mapDVDstatus.containsKey(title)
-				|| (!mapDVDstatus.get(title).equalsIgnoreCase("s"))) {
+				|| (mapDVDstatus.get(title).equalsIgnoreCase("s"))) {
 			System.out
-					.println("Error: DVD with this name does not exist. Transaction Terminated");
+					.println("Error: DVD with this name does not exist or DVD is for Sale. Transaction Terminated");
 			return;
 		}
 
@@ -630,13 +652,13 @@ class Functions {
 		}
 
 		int x = (quantity + (mapDVDquantity.get(title)));
-
 		temp_mapDVDquantity.put(title, x);
+		System.out.println("transaction successful");
 
 		// write transaction to the DVD transaction summary file
 		try {
 
-			log(04, title, x, "R", 000.00);
+			log(04, title, quantity, "R", 000.00);
 
 		} catch (IOException e) {
 
@@ -754,9 +776,64 @@ class Functions {
 		String dvd_price = price.format(d);
 		// Outputting
 		out.write('\n' + transaction_code + " " + dvd_title + " "
-				+ number_of_copies + " " + status + " " + dvd_price);
+				+ number_of_copies + " " + status.toUpperCase() + " "
+				+ dvd_price);
 		out.newLine();
 
+	}
+
+	/*
+	 * readCurrentFile reads current DVD file at the beginning of execution.
+	 * reads current DVD title, quantity, price, status into hashMap
+	 * respectively.
+	 */
+
+	public static void readCurrentFile() {
+
+		try {
+			// Open the file that is the first
+			// command line parameter
+			FileInputStream inputfile = new FileInputStream(
+					"Current_DVD_File.txt");
+			// Get the object of DataInputStream
+			DataInputStream in = new DataInputStream(inputfile);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			String strLine;
+
+			// loop to read data from the file, it runs until it has valid data
+
+			while ((strLine = br.readLine()) != null) {
+
+				// Substring to fetch different information.
+
+				String title = (strLine.substring(0, 25).trim()).toLowerCase();
+				String string_quantity = strLine.substring(26, 30);
+				String string_status = strLine.substring(31, 32);
+				String string_price = strLine.substring(33, 39);
+				double price = 0;
+				int quantity = 0;
+
+				// Try and parse integer and double value for price and quantity
+				try {
+					quantity = Integer.parseInt(string_quantity);
+					price = Double.parseDouble(string_price);
+				} catch (Exception ex) {
+
+				}
+
+				// puts DVD title and respective information into hash map
+				
+				mapDVDstatus.put(title, string_status);
+				mapDVDquantity.put(title, quantity);
+				mapDVDprice.put(title, price);
+
+			}
+			// Close the input stream
+			in.close();
+
+		} catch (Exception e) {// Catch exception if any
+
+		}
 	}
 
 }

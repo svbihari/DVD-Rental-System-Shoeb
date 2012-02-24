@@ -1,5 +1,18 @@
 import java.util.Scanner;
 
+/*
+ * Session.java
+ * @Project DVD Rental System
+ * @Company MCS
+ * @Developed by SHOEBKHAN BIHARI, CHIRAG GOSALIA, MIHIR PATEL
+ * 
+ * */
+
+/*
+ *This class has two methods which include admin and standard. The two methods of
+ *standard and admin inherit methods from functions class depending on their respective
+ *privileges.   
+ * */
 
 public class Session {
 
@@ -7,124 +20,144 @@ public class Session {
 		// TODO Auto-generated constructor stub
 	}
 
-	public static void admin(){
+	/*
+	 * admin method with all feature of DVD Rental System
+	 */
+	public static void admin() {
 		// TODO Auto-generated method stub
-		System.out.println("Welcome to Admin Mode");
+		
 		boolean argument = true;
-			
-		/* keep looping to get inputs from user */ 
-		while (argument){
+
+		/* keep looping to get inputs from user */
+		while (argument) {
+
+			// User input
 			System.out.println("Enter transaction you wish to proceed:");
-			Scanner in = new Scanner (System.in);
+			Scanner in = new Scanner(System.in);
 			String input = in.next();
 			in.nextLine();
+
 			// condition for rent function.
-			if (input.equalsIgnoreCase("rent")){
-				Functions.rent();
+			if (input.equalsIgnoreCase("rent")) {
+				Functions.rent(); // calls rent from Funcions class
 				argument = false;
-				admin();
-			}
-			else if(input.equalsIgnoreCase("buy")){		
-				
-				Functions.buy();
-				admin();
+				admin(); // returns to admin menu after completing transaction
+
+				// condition for buy function.
+			} else if (input.equalsIgnoreCase("buy")) {
+
+				Functions.buy(); // calls buy from Functions class
+				admin(); // returns to admin menu after completing transaction
 				argument = false;
-				
-			}
-			else if(input.equalsIgnoreCase("sell")){		
-				
-				Functions.sell();
-				
-				admin();
+
+				// condition for sell function.
+			} else if (input.equalsIgnoreCase("sell")) {
+
+				Functions.sell(); // calls sell Functions class
+				admin();// returns to admin menu after completing transaction
 				argument = false;
-			}
-			else if(input.equalsIgnoreCase("return")){		
-				
-				Functions.reTurn();
+
+				// condition for return function.
+			} else if (input.equalsIgnoreCase("return")) {
+
+				Functions.reTurn(); // calls return from Functions class
 				argument = false;
-				admin();
-			}
-			else if(input.equalsIgnoreCase("create")){		
-				
-				Functions.create();
+				admin(); // returns to admin menu after completing transaction
+
+				// Condition for create functions
+			} else if (input.equalsIgnoreCase("create")) {
+
+				Functions.create(); // calls create from Functions class
 				argument = false;
-				admin();
-			}
-			else if(input.equalsIgnoreCase("add")){		
-				
-				Functions.add();
+				admin(); // return to admin menu after completing transaction
+
+				// condition for add function
+			} else if (input.equalsIgnoreCase("add")) {
+
+				Functions.add(); // calls add from Functions class
 				argument = false;
-				admin();
-			}
-			else if(input.equalsIgnoreCase("remove")){		
-				
-				Functions.remove();
+				admin(); // return to admin menu after completing transaction
+
+				// Condition for remove functions
+			} else if (input.equalsIgnoreCase("remove")) {
+
+				Functions.remove(); // call remove from Functions class
 				argument = false;
-				admin();
-			}
-			else if(input.equalsIgnoreCase("logout")){		
-				
+				admin(); // return to admin menu after completing transaction
+
+				// Condition for logout functions
+			} else if (input.equalsIgnoreCase("logout")) {
+
 				argument = false;
-				Functions.logout();
+				Functions.logout(); // call logout from Functions class
 			}
-			
-			
+
 			else {
-				
+
 				System.out.println("Invalid command");
-				
+
 			}
 		}
-		
+
 	}
 
-	public static void standard () {
+	/*
+	 * Standard method with privileged feature of DVD Rental System
+	 */
+
+	public static void standard() {
 		// TODO Auto-generated method stub
+
 		
-		System.out.println("Welcome to Admin Standard");
 		boolean argument = true;
-			
-		while (argument){
+
+		while (argument) {
+
+			// Takes user input
 			System.out.println("Enter transaction you wish to proceed:");
-			Scanner in = new Scanner (System.in);
+			Scanner in = new Scanner(System.in);
 			String input = in.next();
-			
-			if (input.equalsIgnoreCase("rent")){
-				
-				Functions.rent();
+
+			// condition for rent function
+			if (input.equalsIgnoreCase("rent")) {
+
+				Functions.rent(); // calls rent from Functions class
 				argument = false;
-				standard();
-			}
-			else if(input.equalsIgnoreCase("buy")){		
-				
-				Functions.buy();
+				standard(); // return to standard mode after completing
+							// transaction
+
+				// condition for buy function
+			} else if (input.equalsIgnoreCase("buy")) {
+
+				Functions.buy(); // calls buy from Functions class
 				argument = false;
-				standard();
+				standard(); // return to standard mode after completing
+							// transaction
 			}
-			
-			else if(input.equalsIgnoreCase("return")){		
-				
-				Functions.reTurn();
+			// condition for return function
+			else if (input.equalsIgnoreCase("return")) {
+
+				Functions.reTurn(); // calls return from Functions class
 				argument = false;
-				standard();
+				standard(); // return to standard mode after completing
+							// transaction
 			}
-			
-			
-			else if(input.equalsIgnoreCase("logout")){		
-				
+
+			// condition for logout function
+			else if (input.equalsIgnoreCase("logout")) {
+
 				argument = false;
-				Functions.logout();
+				Functions.logout(); // calls logout from Functions class
 			}
-		
-			
+
 			else {
-				
+				// prompt error if any other string except above
 				System.out.println("Invalid command");
 				argument = false;
 				standard();
 			}
 		}
-		
+
 	}
 
 }
